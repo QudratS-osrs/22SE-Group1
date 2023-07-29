@@ -1,0 +1,52 @@
+---
+- name: Configure Chrony server
+  hosts: ntp
+  become: true  # This will enable privilege escalation to perform the configuration with sudo/root access
+
+  tasks:
+    - name: Install Chrony Package
+      yum:
+        name: chrony
+        state: present
+      become: yes
+
+    - name: Remove old servers
+      lineinfile:
+        path: /etc/chrony.conf
+        state: absent
+        regexp: '^server\s(0\.centos\.pool\.ntp\.org|1\.centos\.pool\.ntp\.org|2\.centos\.pool\.ntp\.org|3\.centos\.pool\.ntp\.org)\siburst.*$'
+
+    - name: Insert NTP servers into /etc/chrony.conf
+      lineinfile:
+        path: /etc/chrony.conf
+        line: "{{ item }}"
+      with_items:
+        - "server 0.north-america.pool.ntp.org"
+        - "server 1.north-america.pool.ntp.org"
+        - "server 2.north-america.pool.ntp.org"
+        - "server 3.north-america.pool.ntp.org"
+        - "allow 192.168.110.0/23"
+        - "local stratum 10"
+
+    - name: Add firewalld rule to allow NTP (Chrony) traffic
+      firewalld:
+        service: ntp
+        permanent: yes
+        state: enabled
+        immediate: yes
+
+    - name: Reload Firewall
+      command: firewall-cmd --reload
+
+    - name: Enable chronyd service at boot
+      service:
+        name: chronyd
+        enabled: yes
+
+    - name: Restart chronyd service
+      service:
+        name: chronyd
+        state: restarted
+
+
+

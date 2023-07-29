@@ -1,0 +1,81 @@
+---
+- name: Install and Configure NFS Server
+  hosts: nfs  
+  become: true
+
+  tasks:
+    - name: Install NFS packages
+      yum:
+        name:
+          - epel-release
+          - nfs-utils  # NFS utilities
+          #- nfs-utils-lib  # NFS libraries
+        state: present
+
+    - name: Enable and start rpcbind, nfs, nfs-lock, and nfs-idmap services
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      with_items:
+        - rpcbind
+        - nfs-server
+        - nfs-lock
+        - nfs-idmap
+
+    - name: Create /var/nfs/{shared,home} directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      with_items:
+        - /var/nfs/shared
+        - /var/nfs/home
+
+    - name: Change ownership of /var/nfs directory
+      file:
+        path: /var/nfs
+        state: directory
+        owner: nfsnobody
+        group: nfsnobody
+        mode: '0755'
+
+    - name: Export /var/nfs/shared to all clients
+      lineinfile:
+        path: /etc/exports
+        line: "{{ item }}"   #"/var/nfs/shared *(rw,sync,no_root_squash)"
+        create: yes 
+        state: present
+      with_items:
+        - "/var/nfs/shared    *(rw,sync,no_root_squash)"
+        - "/var/nfs/home      *(rw,sync,no_root_squash)"
+      notify: Restart NFS Service
+
+    - name: Make changes effective with exportfs -a
+      command: exportfs -a
+
+    - name: Configure firewall rules for NFS
+      firewalld:
+        service: "{{ item }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      with_items:
+        - mountd
+        - rpc-bind
+        - nfs
+
+    - name: Reload firewall rules
+      command: firewall-cmd --reload
+
+    - name: Restart NFS server
+      service:
+        name: nfs
+        state: restarted
+
+  handlers:
+    - name: Restart NFS Service
+      service:
+        name: nfs
+        state: restarted
+

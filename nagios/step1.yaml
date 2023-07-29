@@ -1,0 +1,113 @@
+---
+- name: Install required packages on CentOS/RHEL
+  hosts: nagios  
+  become: true            
+
+  tasks:
+
+    - name: Download Nagios Core tarball
+      command: wget -O /tmp/nagioscore.tar.gz https://github.com/NagiosEnterprises/nagioscore/archive/nagios-4.4.5.tar.gz
+
+    - name: Extract Nagios Core tarball
+      command: tar xvf /tmp/nagioscore.tar.gz -C /tmp/
+
+    - name: Run ./configure inside Nagios folder
+      command: ./configure
+      args:
+        chdir: /tmp/nagios*
+
+    - name: Run make all inside Nagios folder
+      command: make all
+      args:
+        chdir: /tmp/nagios* 
+
+    - name: Install Nagios Core groups and users
+      command: make install-groups-users
+      args:
+        chdir: /tmp/nagios*  
+
+    - name: Add 'apache' user to 'nagios' group
+      command: usermod -aG nagios apache
+
+    - name: Install Nagios Core
+      command: make install
+      args:
+        chdir: /tmp/nagios*  # Change the working directory to /tmp/nagios before running the command
+
+    - name: Install Nagios Core Daemon Init
+      command: make install-daemoninit
+      args:
+        chdir: /tmp/nagios*  # Change the working directory to /tmp/nagios before running the command
+
+    - name: Install Nagios Core Command Mode
+      command: make install-commandmode
+      args:
+        chdir: /tmp/nagios*  # Change the working directory to /tmp/nagios before running the command
+
+    - name: Install Nagios Core Config Files
+      command: make install-config
+      args:
+        chdir: /tmp/nagios*  # Change the working directory to /tmp/nagios before running the command
+
+    - name: Install Nagios Core Web Configuration
+      command: make install-webconf
+      args:
+        chdir: /tmp/nagios*
+
+    - name: Download Nagios Plugins tarball
+      command: wget -O /root/nagios-plugins-2.3.2.tar.gz http://nagios-plugins.org/download/nagios-plugins-2.3.2.tar.gz
+
+    - name: Extract Nagios Plugins tarball
+      command: tar xzvf /root/nagios-plugins-2.3.2.tar.gz -C /root/
+
+    - name: Run ./configure inside Nagios Plugins folder
+      command: ./configure
+      args:
+        chdir: /root/nagios-plugins-* 
+
+    - name: Run make inside Nagios Plugins folder
+      command: make
+      args:
+        chdir: /root/nagios-plugins-*  # Change the working directory to /root/nagios-plugins-* before running the command
+
+    - name: Run make install inside Nagios Plugins folder
+      command: make install
+      args:
+        chdir: /root/nagios-plugins-* 
+
+    - name: Uncomment line 51 in nagios.cfg
+      lineinfile:
+        path: /usr/local/nagios/etc/nagios.cfg
+        regexp: '^#(.*line51.*)$'
+        line: '\1'  # Removes the '#' symbol from the matched line
+
+    - name: Make the servers folder
+      command: mkdir /usr/local/nagios/etc/servers
+
+    - name: Restart Nagios Service
+      service:
+        name: nagios
+        state: restarted       
+
+
+
+
+
+    - name: Install required packages
+      yum:
+        name:
+          - gcc
+          - glibc
+          - glibc-common
+          - gd
+          - gd-devel
+          - make
+          - net-snmp
+          - openssl-devel
+          - httpd
+          - php
+          - unzip
+          - wget
+          - postfix
+          - perl
+        state: present 

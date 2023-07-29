@@ -1,0 +1,53 @@
+- name: Install ntp chrony
+  hosts: ntp
+  become: true
+  tasks:
+    - name: Install required packages
+      package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - ntp
+        - chrony
+
+    - name: Ensure the specified text is inserted after the "restrict" line in /etc/ntp.conf
+      lineinfile:
+        path: /etc/ntp.conf
+        insertafter: '^restrict.*default.*kod.*nomodify.*notrap.*nopeer.*noquery'
+        line: "restrict -6 default kod nomodify notrap nopeer noquery"
+
+    - name: Ensure the specified restrict line is present in /etc/ntp.conf
+      lineinfile:
+        path: /etc/ntp.conf
+        line: "restrict 192.168.110.0 mask 255.255.254.0 nomodify notrap"
+        create: yes
+        state: present  
+
+    - name: Ensure the local clock configuration is present in /etc/ntp.conf
+      blockinfile:
+        path: /etc/ntp.conf
+        block: |
+          # Local clock configuration
+          server 127.127.1.0
+          fudge 127.127.1.0 stratum 10
+
+    - name: Ensure drift file is configured in /etc/ntp.conf
+      lineinfile:
+        path: /etc/ntp.conf
+        regexp: '^driftfile.*'
+        line: 'driftfile /var/lib/ntp/ntp.drift'
+
+    - name: Ensure log file is configured in /etc/ntp.conf
+      lineinfile:
+        path: /etc/ntp.conf
+        regexp: '^logfile.*'
+        line: 'logfile /var/log/ntp.log'        
+
+    - name: Start ntpd service
+      service:
+        name: ntpd
+        state: started
+        enabled: yes
+
+
+

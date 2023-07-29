@@ -53,3 +53,10 @@
 [dworker]
 192.168.110.34 #34.prdx-dworker101
 192.168.110.35 #35.prdx-dworker102
+
+[centos8]
+192.168.110.18 #18.prdx-db102(Centos8)
+192.168.110.20 #20.prdx-webserver111(centos8)
+192.168.110.22 #22.prdx-webserver112(centos8)
+192.168.110.24 #24.prdx-webserver113(centos8)
+192.168.110.26 #26.prdx-haproxy111(centos8)

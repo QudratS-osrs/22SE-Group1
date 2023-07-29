@@ -1,0 +1,30 @@
+---
+- name: Insert specified NTP servers into /etc/chrony.conf for CentOS 8 servers
+  hosts: centos8  # Replace this with the appropriate target hosts or inventory group for CentOS 8 servers.
+  become: yes
+  tasks:
+
+    - name: THIS IS CENTOS8 SPECIFIC!!
+      lineinfile:
+        path: /etc/chrony.conf
+        state: absent
+        regexp: '^pool 2\.centos\.pool\.ntp\.org iburst.*$'
+
+    - name: Insert NTP server lines into /etc/chrony.conf
+      lineinfile:
+        path: /etc/chrony.conf
+        line: "{{ item }}"
+        state: present
+        insertafter: EOF
+        create: yes
+      with_items:
+        - "server 192.168.110.10 iburst"
+        - "server 192.168.110.11 iburst"
+      register: line_inserted
+      changed_when: line_inserted is changed
+
+    - name: Restart chronyd Service
+      service:
+        name: chronyd
+        state: restarted
+      become: yes

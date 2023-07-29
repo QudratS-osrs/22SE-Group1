@@ -1,0 +1,40 @@
+---
+- name: Set up Autofs for all clients
+  hosts: all:!nfs
+  become: true
+
+  tasks:
+    - name: Install autofs package
+      yum:
+        name: autofs
+        state: present
+
+    - name: Add master map entry to /etc/auto.master
+      lineinfile:
+        path: /etc/auto.master
+        line: "/- /etc/auto.direct"
+        state: present
+
+    - name: Create master map file for indirect mounts
+      copy:
+        content: |
+          /indirect /etc/auto.demo
+        dest: /etc/auto.master.d/demo.autofs
+
+    - name: Create the mapping file for indirect mount
+      copy:
+        content: |
+          * -rw,sync nfs:/var/nfs/home
+        dest: /etc/auto.demo
+
+    - name: Create the mapping file for direct mount
+      copy:
+        content: |
+          /direct -rw,sync nfs:/var/nfs/shared    #/mnt/docs
+        dest: /etc/auto.direct
+
+    - name: Start and enable autofs service
+      service:
+        name: autofs
+        state: started
+        enabled: yes

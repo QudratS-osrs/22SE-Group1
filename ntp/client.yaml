@@ -1,0 +1,54 @@
+---
+- name: Configure NTP Client to Synchronize with NTP Server
+  hosts: all !ntp
+  become: true  # This will enable privilege escalation to perform the configuration with sudo/root access
+
+  tasks:
+    - name: Install NTP Package
+      yum:
+        name: ntp
+        state: present
+      become: yes
+
+    - name: Install chrony Package
+      yum:
+        name: chrony
+        state: present
+      become: yes          
+
+    - name: Insert NTP server lines into /etc/chrony.conf
+      lineinfile:
+        path: /etc/chrony.conf
+        line: "{{ item }}"
+        state: present
+        insertafter: EOF
+        create: yes
+      with_items:
+        - "server 192.168.110.10 iburst"
+        - "server 192.168.110.11 iburst"
+      register: line_inserted
+      changed_when: line_inserted is changed
+
+    - name: Remove old lines
+      lineinfile:
+        path: /etc/chrony.conf
+        state: absent
+        regexp: '^server\s(0\.centos\.pool\.ntp\.org|1\.centos\.pool\.ntp\.org|2\.centos\.pool\.ntp\.org|3\.centos\.pool\.ntp\.org)\siburst.*$'
+
+    - name: THIS IS CENTOS8 SPECIFIC!!
+      lineinfile:
+        path: /etc/chrony.conf
+        state: absent
+        regexp: '^pool 2\.centos\.pool\.ntp\.org iburst.*$'
+
+    - name: Remove lines with specified NTP servers
+      lineinfile:
+        path: /etc/ntp.conf
+        state: absent
+        regexp: '^server\s(0\.centos\.pool\.ntp\.org|1\.centos\.pool\.ntp\.org|2\.centos\.pool\.ntp\.org|3\.centos\.pool\.ntp\.org)\siburst.*$'
+
+    - name: Restart chronyd Service
+      service:
+        name: chronyd
+        state: restarted
+      become: yes
