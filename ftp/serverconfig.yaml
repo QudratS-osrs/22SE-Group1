@@ -1,0 +1,44 @@
+---
+- name: Configure vsftpd and Firewall for FTP
+  hosts: ftp
+  become: true
+  tasks:
+    - name: Install vsftpd package
+      yum:
+        name: vsftpd
+        state: present
+
+    - name: Create ftpuser
+      user:
+        name: ftpuser
+        password: "{{ 'password' | password_hash('sha512') }}"
+
+    - name: Uncomment local_enable line and add anon_root line
+      ansible.builtin.lineinfile:
+        path: /etc/vsftpd/vsftpd.conf
+        regex: '^#?\s*local_enable='
+        line: 'local_enable=YES'
+        backrefs: yes
+        state: present
+
+    - name: Add anon_root line after anonymous_enable line
+      ansible.builtin.lineinfile:
+        path: /etc/vsftpd/vsftpd.conf
+        insertafter: '^#?\s*anonymous_enable='
+        line: 'anon_root=/var/ftp/pub'
+        state: present       
+
+    - name: Start vsftpd service and enable it on boot
+      systemd:
+        name: vsftpd
+        state: started
+        enabled: yes
+
+    - name: Add FTP service to the firewall and make it permanent
+      firewalld:
+        service: ftp
+        permanent: yes
+        state: enabled
+
+    - name: Reload Firewall
+      command: firewall-cmd --reload

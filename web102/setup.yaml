@@ -1,0 +1,34 @@
+- name: Install httpd
+  hosts: 192.168.110.21
+  become: true
+  tasks:
+    - name: Install required packages
+      package:
+        name: httpd
+        state: present
+    - name: Create index.html if not exists
+      blockinfile:
+        path: /var/www/html/index.html
+        block: |
+          <h1>Serving content from server WebServer102</h1>
+          <img src=https://i.ytimg.com/vi/S4ie65FpaN4/maxresdefault.jpg>
+        create: true
+    - name: Set firewall rules for port 80/tcp and 80/udp
+      firewalld:
+        port: "80/tcp"
+        permanent: yes
+        state: enabled
+    - name: Reload Firewall
+      command: firewall-cmd --reload
+    - name: Start HTTPD service and enable it on boot
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: Start HTTPD service
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes      

@@ -1,0 +1,26 @@
+---
+- name: Create index.html file with content if it doesn't exist
+  hosts: 192.168.110.23
+  become: true
+
+  tasks:
+    - name: Check if index.html exists
+      ansible.builtin.stat:
+        path: /var/www/html/index.html
+      register: file_stat
+
+    - name: Update index.html if it exists
+      ansible.builtin.copy:
+        content: |
+          <h1>Serving content from server WebServer103</h1>
+          <img src=https://zipmex.com/static/e3e07905769dbbe548f4e593d6f6e3a1/1bbe7/Web-3.0-Explained.jpg>
+        dest: /var/www/html/index.html
+      when: file_stat.stat.exists 
+
+    - name: Create index.html if it doesn't exist
+      ansible.builtin.copy:
+        content: |
+          <h1>Serving content from server WebServer103</h1>
+          <img src=https://zipmex.com/static/e3e07905769dbbe548f4e593d6f6e3a1/1bbe7/Web-3.0-Explained.jpg>
+        dest: /var/www/html/index.html
+      when: not file_stat.stat.exists 

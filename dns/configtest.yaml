@@ -1,0 +1,7 @@
+---
+- name: Run named-checkconf -zj on remote server
+  hosts: nssecondary
+  become: true
+  tasks:
+    - name: Execute named-checkconf command
+      command: named-checkconf -zj

@@ -1,0 +1,148 @@
+---
+- name: bunch of stuff
+  hosts: LB
+  become: true
+  tasks:
+    - name: Add entries to /etc/hosts file
+      blockinfile:
+        path: /etc/hosts
+        block: |
+          192.168.110.19 prdx-webserver101.ziyotek1.local web101
+          192.168.110.20 prdx-webserver111.ziyotek1.local web111(Centos8)
+          192.168.110.21 prdx-webserver102.ziyotek1.local web102
+          192.168.110.22 prdx-webserver112.ziyotek1.local web112(Centos8)
+          192.168.110.23 prdx-webserver103.ziyotek1.local web103
+          192.168.110.24 prdx-webserver113.ziyotek1.local web113(Centos8)
+
+    - name: Install HAProxy
+      yum:
+        name: haproxy
+        state: present
+
+    - name: Backup original haproxy.cfg
+      shell: mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.orig
+      args:
+        creates: /etc/haproxy/haproxy.cfg.orig
+
+    - name: Create /etc/haproxy/haproxy.cfg
+      copy:
+        content: |
+          #---------------------------------------------------------------------
+          # Global settings
+          #---------------------------------------------------------------------
+          global
+              log         127.0.0.1 local2
+              chroot      /var/lib/haproxy
+              pidfile     /var/run/haproxy.pid
+              maxconn     4000
+              user        haproxy
+              group       haproxy
+              daemon
+              stats socket /var/lib/haproxy/stats
+
+          #---------------------------------------------------------------------
+          # common defaults that all the 'listen' and 'backend' sections will
+          # use if not designated in their block
+          #---------------------------------------------------------------------
+          defaults
+              mode                    http
+              log                     global
+              option                  httplog
+              option                  dontlognull
+              option http-server-close
+              option forwardfor       except 127.0.0.0/8
+              option                  redispatch
+              retries                 3
+              timeout http-request    10s
+              timeout queue           1m
+              timeout connect         10s
+              timeout client          1m
+              timeout server          1m
+              timeout http-keep-alive 10s
+              timeout check           10s
+              maxconn                 3000
+
+          #---------------------------------------------------------------------
+          # HAProxy Monitoring Config
+          #---------------------------------------------------------------------
+          listen haproxy3-monitoring *:8080
+              mode http
+              option forwardfor
+              option httpclose
+              stats enable
+              stats show-legends
+              stats refresh 5s
+              stats uri /stats
+              stats realm Haproxy\ Statistics
+              stats auth student:password
+              stats admin if TRUE
+              default_backend app-main
+
+          #---------------------------------------------------------------------
+          # FrontEnd Configuration
+          #---------------------------------------------------------------------
+          frontend main
+              bind *:80
+              option http-server-close
+              option forwardfor
+              default_backend app-main
+
+          #---------------------------------------------------------------------
+          # BackEnd roundrobin as balance algorithm
+          #---------------------------------------------------------------------
+          backend app-main
+              balance roundrobin
+              server  web1  192.168.110.19:80  check
+              server  web11  192.168.110.20:80  check
+              server  web2  192.168.110.21:80  check
+              server  web12  192.168.110.22:80  check
+              server  web3  192.168.110.23:80  check
+              server  web13  192.168.110.24:80  check
+        dest: /etc/haproxy/haproxy.cfg
+     
+    - name: Uncomment lines in /etc/rsyslog.conf
+      lineinfile:
+        path: /etc/rsyslog.conf
+        regexp: '^#($ModLoad imudp|$UDPServerRun 514)'
+        line: '\1'
+        state: present
+
+    - name: Create HAProxy rsyslog config
+      copy:
+        content: |
+          local2.=info     /var/log/haproxy-access.log
+          local2.notice    /var/log/haproxy-info.log
+        dest: /etc/rsyslog.d/haproxy.conf
+
+    - name: Ensure HAProxy rsyslog config permissions
+      file:
+        path: /etc/rsyslog.d/haproxy.conf
+        mode: '0644'
+
+    - name: Restart rsyslog service
+      service:
+        name: rsyslog
+        state: restarted
+
+    - name: Set firewall rules for ports 80/tcp and 8080/tcp
+      firewalld:
+        port: "{{ item }}/tcp"
+        permanent: yes
+        state: enabled
+      loop:
+        - 80
+        - 8080
+
+    - name: Reload firewall
+      command: firewall-cmd --reload
+
+    - name: Restart rsyslog service
+      service:
+        name: rsyslog
+        state: restarted
+
+    - name: Start HAProxy service
+      service:
+        name: haproxy
+        state: started
+        enabled: yes                      

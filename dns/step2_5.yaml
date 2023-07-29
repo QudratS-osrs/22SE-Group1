@@ -1,0 +1,12 @@
+---
+- name: Configure named.conf
+  hosts: primary
+  become: true
+  tasks:    
+    - name: Copy named.localhost to ziyotek.flz
+      command: cp -p /var/named/named.localhost /var/named/ziyotek.flz
+      ignore_errors: yes
+
+    - name: Copy named.loopback to ziyotek.rlz
+      command: cp -p /var/named/named.loopback /var/named/ziyotek.rlz
+      ignore_errors: yes   

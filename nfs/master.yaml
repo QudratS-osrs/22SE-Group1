@@ -1,0 +1,43 @@
+---
+- name: Configure NFS Server and Client
+  hosts: all  # Replace 'all_servers' with the appropriate host group containing all the servers
+  become: true
+
+  vars:
+    nfs_server: nfs  # Replace with the hostname or IP address of your NFS server
+    shared_folder: /var/nfs/shared
+    client_mount_path: /clientshare
+
+  tasks:
+    - name: Install NFS server and client packages
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - nfs-utils
+        - nfs-utils-lib
+        - autofs
+
+    - name: Create shared folder on the NFS server
+      file:
+        path: "{{ shared_folder }}"
+        state: directory
+        mode: '0755'
+
+    - name: Export the shared folder on the NFS server
+      lineinfile:
+        path: /etc/exports
+        line: "{{ shared_folder }} *(rw,sync,no_root_squash)"
+        state: present
+      notify: Restart NFS Service
+
+    - name: Configure AutoFS for LDAP user homes
+      lineinfile:
+        path: /etc/auto.master.d/ldap.autofs
+        line: "/home /etc/auto.ldap --timeout=600 --ghost"
+        create: yes
+
+    - name: Restart AutoFS service
+      service:
+        name: autofs
+        state: restarted

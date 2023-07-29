@@ -1,0 +1,35 @@
+---
+- name: Install and configure LDAP server
+  hosts: ldap
+  become: true
+  tasks:
+    - name: Install required packages
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - openldap
+        - openldap-clients
+        - openldap-servers
+        - openssl
+        - httpd
+        - migrationtools
+
+    - name: Start and enable slapd
+      systemd:
+        name: slapd
+        state: started
+        enabled: yes
+
+    - name: Configure firewall rules
+      firewalld:
+        port: "{{ item }}"
+        permanent: yes
+        state: enabled
+      with_items:
+        - 389/tcp
+        - 636/tcp
+        - 9830/tcp
+
+    - name: Reload firewall
+      command: firewall-cmd --reload    

@@ -1,0 +1,19 @@
+---
+- name: Configure Firewall
+  hosts: nsprimary
+  become: true
+  tasks:
+    - name: Add TCP port 53 to firewall
+      firewalld:
+        port: 53/tcp
+        permanent: yes
+        state: enabled
+
+    - name: Add UDP port 53 to firewall
+      firewalld:
+        port: 53/udp
+        permanent: yes
+        state: enabled
+
+    - name: Reload Firewall
+      command: firewall-cmd --reload

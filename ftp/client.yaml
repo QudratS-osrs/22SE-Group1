@@ -1,0 +1,8 @@
+- name: Install ftp
+  hosts: all !ftp
+  become: true
+  tasks:
+    - name: Install required packages
+      package:
+        name: bind-utils
+        state: present

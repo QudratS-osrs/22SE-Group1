@@ -1,0 +1,6 @@
+- name: Install bind-utils 
+  hosts: all
+  become: true
+  tasks:
+    - name: Reload Firewall
+      command: yum install -y bind-utils   

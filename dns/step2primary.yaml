@@ -1,0 +1,61 @@
+---
+- name: Configure named.conf
+  hosts: primary
+  become: true
+  tasks:
+    - name: Ensure named directory exists
+      file:
+        path: /var/named
+        state: directory
+
+    - name: Create ziyotek.local forward lookup zone file
+      file:
+        path: /var/named/ziyotek.flz
+        state: touch
+
+    - name: Create 110.168.192.in-addr.arpa reverse lookup zone file
+      file:
+        path: /var/named/ziyotek.rlz
+        state: touch
+
+    - name: Copy named.conf file
+      copy:
+        content: |
+          //
+          // named.conf
+          //
+
+          // Provided by Red Hat bind package to configure the ISC BIND named(8) DNS
+          // server as a caching only nameserver (as a localhost DNS resolver only).
+          // See /usr/share/doc/bind*/sample/ for example named configuration files.
+
+          options {
+            listen-on port 53 { 127.0.0.1; 192.168.110.12; }; ## primary DNS IP ##
+            directory "/var/named";
+            allow-query { localhost; 192.168.110.0/23; };     ## IP RANGE or use the word any; ##
+            allow-transfer { localhost; 192.168.110.13; };    ## secondary DNS IP ##
+            also-notify { 192.168.110.13; };                  ## secondary IP
+          .
+          .
+
+          # FORWARD LOOKUP ZONE
+          zone "ziyotek1.local" IN {
+            type primary;
+            file "ziyotek.flz";                     ## We do not have this file has yet.  We need to create it. ##
+            allow-update { none; };
+          };
+
+          # REVERSE LOOKUP ZONE
+          zone "110.168.192.in-addr.arpa" IN {
+            type primary;
+            file "ziyotek.rlz";                     ## We do not have this file has yet. We need to create it. ##
+            allow-update { none; };
+          };
+        dest: /etc/named.conf
+    - name: Copy named.localhost to ziyotek.flz
+      command: cp -p /var/named/named.localhost /var/named/ziyotek.flz
+      ignore_errors: yes
+
+    - name: Copy named.loopback to ziyotek.rlz
+      command: cp -p /var/named/named.loopback /var/named/ziyotek.rlz
+      ignore_errors: yes    

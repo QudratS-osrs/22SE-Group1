@@ -1,0 +1,60 @@
+---
+- name: Edit ziyotek.rlz
+  hosts: nssecondary
+  become: true
+  tasks:
+    - name: Ensure ziyotek.rlz exists
+      file:
+        path: /var/named/ziyotek.rlz
+        state: touch
+
+    - name: Edit ziyotek.rlz file
+      blockinfile:
+        path: /var/named/ziyotek.rlz
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        content: |
+          $TTL   1D
+          @       IN      SOA     prdx-nsprimary101.ziyotek1.local. root.prdx-nsprimary101.ziyotek1.local. (
+                                  2023072801      ; serial
+                                  1D              ; refresh
+                                  1H              ; retry
+                                  1W              ; expire
+                                  3H )            ; minimum
+
+          ; name servers NS records
+          IN      NS      prdx-nsprimary101.ziyotek1.local.
+          IN      NS      prdx-nsworker101.ziyotek1.local.
+          IN      NS      prdx-nsworker102.ziyotek1.local.          
+
+          ; name servers PTR records
+          12          IN      PTR     prdx-nsprimary101.ziyotek1.local.
+          13          IN      PTR     prdx-nsworker101.ziyotek1.local.
+          14          IN      PTR     prdx-nsworker102.ziyotek1.local.
+
+          ; servers
+          10          IN      PTR     prdx-ntp101.ziyotek1.local.
+          11          IN      PTR     prdx-ntp102.ziyotek1.local.
+          12          IN      PTR     prdx-nsprimary101.ziyotek1.local.
+          13          IN      PTR     prdx-nsworker101.ziyotek1.local.
+          14          IN      PTR     prdx-nsworker102.ziyotek1.local.
+          15          IN      PTR     prdx-ftp101.ziyotek1.local.
+          16          IN      PTR     prdx-nfs101.ziyotek1.local.
+          17          IN      PTR     prdx-db101.ziyotek1.local.
+          18          IN      PTR     prdx-db102.ziyotek1.local.
+          19          IN      PTR     prdx-webserver101.ziyotek1.local.
+          20          IN      PTR     prdx-webserver111.ziyotek1.local.
+          21          IN      PTR     prdx-webserver102.ziyotek1.local.
+          22          IN      PTR     prdx-webserver112.ziyotek1.local.
+          23          IN      PTR     prdx-webserver103.ziyotek1.local.
+          24          IN      PTR     prdx-webserver113.ziyotek1.local.
+          25          IN      PTR     prdx-haproxy101.ziyotek1.local.
+          26          IN      PTR     prdx-haproxy111.ziyotek1.local.
+          27          IN      PTR     prdx-nagios101.ziyotek1.local.
+          28          IN      PTR     prdx-ldap101.ziyotek1.local.
+          29          IN      PTR     prdx-ansible101.ziyotek1.local.
+          30          IN      PTR     prdx-web101.ziyotek1.local.
+          31          IN      PTR     prdx-web102.ziyotek1.local.
+          32          IN      PTR     prdx-lb101.ziyotek1.local.
+          33          IN      PTR     prdx-dprimary101.ziyotek1.local.
+          34          IN      PTR     prdx-dworker101.ziyotek1.local.
+          35          IN      PTR     prdx-dworker102.ziyotek1.local.

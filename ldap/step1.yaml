@@ -1,0 +1,13 @@
+---
+- name: Disable SELinux
+  hosts: all
+  become: true
+  tasks:
+    - name: Disable SELinux temporarily with setenforce
+      command: setenforce 0
+
+    - name: Edit /etc/sysconfig/selinux
+      lineinfile:
+        path: /etc/sysconfig/selinux
+        regexp: '^SELINUX='
+        line: 'SELINUX=disabled'

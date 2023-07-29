@@ -1,0 +1,11 @@
+- name: Install bind-utils ntp
+  hosts: all
+  become: true
+  tasks:
+    - name: Install required packages
+      package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - bind-utils
+        - ntp

@@ -1,0 +1,12 @@
+- name: Install vsftpd and create ftpuser
+  hosts: ftp
+  become: true
+  tasks:
+    - name: Install required packages
+      package:
+        name: vsftpd
+        state: present
+    - name: Create ftpuser
+      user:
+        name: ftpuser
+        password: "{{ 'password' | password_hash('sha512') }}"

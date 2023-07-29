@@ -1,0 +1,83 @@
+---
+- name: Edit ziyotek.flz
+  hosts: nssecondary
+  become: true
+  tasks:
+    - name: Ensure ziyotek.flz exists
+      file:
+        path: /var/named/ziyotek.flz
+        state: touch
+
+    - name: Edit ziyotek.flz file
+      blockinfile:
+        path: /var/named/ziyotek.flz
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        content: |
+          $TTL    1D
+          @       IN      SOA     prdx-nsprimary101.ziyotek1.local. root.prdx-nsprimary101.ziyotek1.local. (
+                                  2023072801      ; Serial
+                                  1D              ; Refresh
+                                  1H              ; Retry
+                                  1W              ; Expire
+                                  3H )            ; minimum
+
+          ; name servers NS records
+                      IN      NS      prdx-nsprimary101.ziyotek1.local.
+                      IN      NS      prdx-nsworker101.ziyotek1.local.
+                      IN      NS      prdx-nsworker102.ziyotek1.local.
+
+          ; name servers A records
+          prdx-nsprimary101   IN      A       192.168.110.12
+          prdx-nsworker101    IN      A       192.168.110.13
+          prdx-nsworker102    IN      A       192.168.110.14
+
+          ; servers
+          prdx-ntp101          IN      A       192.168.110.10
+          ntp1                 IN      CNAME   prdx-ntp101.ziyotek1.local.
+          prdx-ntp102          IN      A       192.168.110.11
+          ntp2                 IN      CNAME   prdx-ntp102.ziyotek1.local.          
+          dns1                 IN      CNAME   prdx-nsprimary101.ziyotek1.local.
+          dns2                 IN      CNAME   prdx-nsworker101.ziyotek1.local.
+          dns3                 IN      CNAME   prdx-nsworker102.ziyotek1.local.
+          prdx-ftp101          IN      A       192.168.110.15
+          ftp                  IN      CNAME   prdx-ftp101.ziyotek1.local.
+          prdx-nfs101          IN      A       192.168.110.16
+          nfs                  IN      CNAME   prdx-nfs101.ziyotek1.local.
+          prdx-db101           IN      A       192.168.110.17
+          DB                   IN      CNAME   prdx-db101.ziyotek1.local.
+          prdx-db102           IN      A       192.168.110.18
+          db2                  IN      CNAME   prdx-db102.ziyotek1.local.
+          prdx-webserver101    IN      A       192.168.110.19
+          web1                 IN      CNAME   prdx-webserver101.ziyotek1.local.
+          prdx-webserver111    IN      A       192.168.110.20
+          web11                IN      CNAME   prdx-webserver111.ziyotek1.local.
+          prdx-webserver102    IN      A       192.168.110.21
+          web2                 IN      CNAME   prdx-webserver102.ziyotek1.local.          
+          prdx-webserver112    IN      A       192.168.110.22
+          web12                IN      CNAME   prdx-webserver112.ziyotek1.local.
+          prdx-webserver103    IN      A       192.168.110.23
+          web3                 IN      CNAME   prdx-webserver103.ziyotek1.local.
+          prdx-webserver113    IN      A       192.168.110.24
+          web13                IN      CNAME   prdx-webserver113.ziyotek1.local.
+          prdx-haproxy101      IN      A       192.168.110.25
+          lb1                  IN      CNAME   prdx-haproxy101.ziyotek1.local.
+          prdx-haproxy111      IN      A       192.168.110.26
+          lb11                 IN      CNAME   prdx-haproxy111.ziyotek1.local.
+          prdx-nagios101       IN      A       192.168.110.27
+          nagios               IN      CNAME   prdx-nagios101.ziyotek1.local.
+          prdx-ldap101         IN      A       192.168.110.28
+          ldap                 IN      CNAME   prdx-ldap101.ziyotek1.local.
+          prdx-ansible101      IN      A       192.168.110.29
+          ansible              IN      CNAME   prdx-ansible101.ziyotek1.local.
+          prdx-web101          IN      A       192.168.110.30
+          ec2web1              IN      CNAME   prdx-web101.ziyotek1.local.
+          prdx-web102          IN      A       192.168.110.31
+          ec2web2              IN      CNAME   prdx-web102.ziyotek1.local.
+          prdx-lb101           IN      A       192.168.110.32
+          awslb                IN      CNAME   prdx-lb101.ziyotek1.local.
+          prdx-dprimary101     IN      A       192.168.110.33
+          docker1              IN      CNAME   prdx-dprimary101.ziyotek1.local.
+          prdx-dworker101      IN      A       192.168.110.34
+          dworker1             IN      CNAME   prdx-dworker101.ziyotek1.local.
+          prdx-dworker102      IN      A       192.168.110.35
+          dworker2             IN      CNAME   prdx-dworker102.ziyotek1.local.
