@@ -1,4 +1,4 @@
-- name: Install bind-utils ntp
+- name: Sample yaml file to install multiple packages
   hosts: all
   become: true
   tasks:

@@ -1,4 +1,4 @@
-- name: Install bind-utils 
+- name: Reload Firewall 
   hosts: all
   become: true
   tasks:

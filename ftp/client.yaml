@@ -4,5 +4,5 @@
   tasks:
     - name: Install required packages
       package:
-        name: bind-utils
+        name: ftp
         state: present
