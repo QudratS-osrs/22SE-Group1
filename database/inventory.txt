@@ -1,0 +1,55 @@
+[ntp]
+192.168.110.10 #10.prdx-ntp101
+192.168.110.11 #11.prdx-ntp102
+
+[nsprimary]
+192.168.110.12 #12.prdx-nsprimary101
+
+[nssecondary]
+192.168.110.13 #13.prdx-nsworker101
+192.168.110.14 #14.prdx-nsworker102
+
+[ftp]
+192.168.110.15 #15.prdx-ftp101
+
+[nfs]
+192.168.110.16 #16.prdx-nfs101
+
+[database]
+192.168.110.17 #17.prdx-db101
+192.168.110.18 #18.prdx-db102(Centos8)
+
+[Webserver]
+192.168.110.19 #19.prdx-webserver101
+192.168.110.20 #20.prdx-webserver111(centos8)
+192.168.110.21 #21.prdx-webserver102
+192.168.110.22 #22.prdx-webserver112(centos8)
+192.168.110.23 #23.prdx-webserver103
+192.168.110.24 #24.prdx-webserver113(centos8)
+
+[LB]
+192.168.110.25 #25.prdx-haproxy101
+192.168.110.26 #26.prdx-haproxy111(centos8)
+
+[nagios]
+192.168.110.27 #15.prdx-nagios101
+
+[ldap]
+192.168.110.28 #16.prdx-ldap101
+
+[ansible]
+192.168.110.29 #17.prdx-ansible101
+
+[ec2]
+192.168.110.30 #30.prdx-web101
+192.168.110.31 #31.prdx-web102 
+
+[awslb]
+192.168.110.32 #32.prdx-lb101
+
+[Docker]
+192.168.110.33 #33.prdx-dprimary101
+
+[dworker]
+192.168.110.34 #34.prdx-dworker101
+192.168.110.35 #35.prdx-dworker102

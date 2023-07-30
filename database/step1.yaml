@@ -1,0 +1,76 @@
+---
+- name: Install MariaDB repository and packages
+  hosts: 192.168.110.17
+  become: true
+
+  tasks:
+    - name: Install epel-release package
+      yum:
+        name: epel-release
+        state: present
+
+    #- name: Create MariaDB repository file
+    #  copy:
+    #    baseurl=http://mirror.mariadb.org/yum/11.1/centos7-amd64/
+    #      gpgkey=http://mirror.mariadb.org/RPM-GPG-KEY-MariaDB
+    #      gpgcheck=0
+    #    dest: /etc/yum.repos.d/mariadb.repo
+
+    #- name: Clean Yum cache
+    #  yum:
+    #    name: ''
+    #    state: latest
+
+    #- name: Get MariaDB repo info
+    #  yum:
+    #    name: ''
+    #    state: latest
+    #  register: repo_info
+
+    #- name: Display MariaDB repo info
+    #  debug:
+    #    var: repo_info
+
+    - name: Install MariaDB server and client packages
+      yum:
+        name:
+          - MariaDB-server
+          - MariaDB-client
+        state: present
+
+    - name: Enable and start MariaDB service
+      service:
+        name: mariadb
+        state: started
+        enabled: yes
+
+    - name: Update package cache
+      yum:
+        name: ''
+        state: latest
+
+- name: Run MySQL Secure Installation
+  hosts: DB
+  become: true
+
+  vars:
+    mysql_root_password: password
+
+  tasks:
+    - name: Install expect package (if needed)
+      package:
+        name: expect
+        state: present
+
+    - name: Run mysql_secure_installation
+      expect:
+        command: mysql_secure_installation
+        responses:
+          - 'Enter current password for root (enter for none):': "password"
+          - 'Set root password? [Y/n]': "Y"
+          - 'New password:': "{{ root }}"
+          - 'Re-enter new password:': "{{ password }}"
+          - 'Remove anonymous users? [Y/n]': "Y"
+          - 'Disallow root login remotely? [Y/n]': "Y"
+          - 'Remove test database and access to it? [Y/n]': "Y"
+          - 'Reload privilege tables now? [Y/n]': "Y"

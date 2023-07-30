@@ -1,0 +1,8 @@
+---
+- name: Check Docker Swarm Membership
+  hosts: all
+  become: yes
+  tasks:
+    - name: command
+      command: docker info | grep Swarm
+

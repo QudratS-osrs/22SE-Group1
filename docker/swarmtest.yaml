@@ -1,0 +1,99 @@
+---
+- name: Initialize Docker Swarm
+  hosts: manager
+  become: true
+
+  tasks:
+    - name: Install required packages
+      yum:
+        name:
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+        state: present
+
+    - name: Configure docker-ce repo
+      command: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+    - name: Install docker-ce
+      yum:
+        name: docker-ce
+        state: latest
+
+    - name: Enable and start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Check if daemon.json exists
+      stat:
+        path: /etc/docker/daemon.json
+      register: daemon_json_check
+
+    - name: Create daemon.json file if not exists
+      copy:
+        content: |
+          {
+            "live-restore": false
+          }
+        dest: /etc/docker/daemon.json
+      when: not daemon_json_check.stat.exists
+      
+    - name: Reload docker service
+      command: systemctl restart docker
+
+   # - name: Restart Docker service
+   #   systemd:
+   #     name: docker
+   #     state: restarted
+
+    - name: Initialize Docker Swarm
+      command: docker swarm init --advertise-addr {{ ansible_default_ipv4.address }}
+      register: swarm_init_output
+      changed_when: false
+
+    - name: Open port 2377 for Docker Swarm
+      firewalld:
+        port: 2377/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+
+    - name: Reload Firewall
+      command: firewall-cmd --reload 
+
+    - name: Retrieve Worker Token
+      shell: docker swarm join-token -q worker
+      register: worker_token_output
+
+    - name: Set facts for swarm token and join command
+      set_fact:
+        swarm_worker_token: "{{ worker_token_output.stdout }}"
+        swarm_manager_address: "{{ ansible_default_ipv4.address }}"
+      when: swarm_init_output.rc == 0
+
+- name: Join Worker Nodes to Docker Swarm
+  hosts: workers
+  become: true
+
+  tasks:
+    - name: Join Worker Nodes to Docker Swarm
+      shell: docker swarm join --token {{ swarm_worker_token }} {{ 192.168.110.33 }}:2377
+      register: join_output
+      changed_when: false
+      when: swarm_worker_token is defined
+
+    - name: Print Join Output
+      debug:
+        var: join_output.stdout
+      when: join_output.stdout is defined
+
+    - name: Print Manager Token
+      debug:
+        var: swarm_worker_token
+
+
+
+
+

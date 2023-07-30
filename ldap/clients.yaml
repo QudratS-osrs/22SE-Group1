@@ -1,0 +1,32 @@
+---
+- name: Disable SELinux
+  hosts: all !ldap
+  become: yes
+  tasks:
+    - name: Set SELinux to disabled
+      lineinfile:
+        path: /etc/sysconfig/selinux
+        regexp: '^SELINUX='
+        line: 'SELINUX=disabled'
+
+    - name: Install required packages
+      yum:
+        name:
+          - openldap-clients
+          - nss-pam-ldapd
+          - authconfig
+        state: latest        
+
+    - name: Configure LDAP Authentication
+      command: authconfig --enableldap --enableldapauth --ldapserver=prdx-ldap101.ziyotek1.local --ldapbasedn=dc=ziyotek1,dc=local --update
+
+    - name: Enable mkhomedir and update configuration
+      command: authconfig --enablemkhomedir --update
+
+    - name: Get user information using getent
+      shell: getent passwd testgui
+      register: user_info_output
+
+    - name: Display user information
+      debug:
+        var: user_info_output.stdout_lines

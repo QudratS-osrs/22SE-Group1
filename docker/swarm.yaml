@@ -1,0 +1,34 @@
+---
+- name: Configure Docker Swarm
+  hosts: docker
+  become: true
+
+    - name: Retrieve Swarm join token for workers
+      shell: docker swarm join-token -q worker
+      register: swarm_worker_token
+
+    - name: Retrieve Swarm join token for managers
+      shell: docker swarm join-token -q manager
+      register: swarm_manager_token
+
+  handlers:
+    - name: Print Swarm join tokens
+      debug:
+        msg: "Worker Token: {{ swarm_worker_token.stdout }}\nManager Token: {{ swarm_manager_token.stdout }}"
+
+- name: Join Docker Swarm as a Worker
+  hosts: dworker1:dworker2
+  become: true
+
+  tasks:
+    - name: Join Docker Swarm as a Worker
+      shell: docker swarm join --token {{ hostvars['docker1']['swarm_worker_token']['stdout'] }} 192.168.110.33:2377
+      ignore_errors: yes  # Ignore errors in case the worker node was already part of the swarm
+
+- name: Join Docker Swarm as a Manager
+  hosts: dworker1  # Change this to dworker2 if needed for the second manager node
+  become: true
+
+  tasks:
+    - name: Join Docker Swarm as a Manager
+      shell: docker swarm join --token {{ hostvars['docker1']['swarm_manager_token']['stdout'] }} 192.168.110.33:2377

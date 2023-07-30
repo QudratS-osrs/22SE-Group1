@@ -1,0 +1,9 @@
+---
+- name: Run equivalent command on CentOS 8
+  hosts: 192.168.110.18
+  become: yes
+
+  tasks:
+    - name: Execute the mariadb command
+      shell: "/usr/bin/mysql -D 22SE-Group1 < /clientshare/newtable.sql"
+

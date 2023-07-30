@@ -1,0 +1,98 @@
+---
+- name: Create MySQL table for who are in what group
+  hosts: database
+  become: yes
+  vars:
+    mysql_database: 22SE-Group1
+    mysql_table: project_groups
+
+  tasks:
+
+    - name: Install MariaDB Server and Client packages
+      yum:
+        name:
+          - epel-release
+          - python-pip
+        state: latest
+      when: ansible_python.version.major == 2
+
+    - name: Install required Python package (Python 3 pymysql)
+      package:
+        name: MySQL-python
+        state: present
+      when: ansible_python.version.major == 2
+
+    - name: Install required Python package (Python 3 setuptools)
+      package:
+        name: python3-setuptools
+        state: present
+      when: ansible_python.version.major == 3
+
+    - name: Install required Python package (Python 2 setuptools)
+      package:
+        name: python-setuptools
+        state: present
+      when: ansible_python.version.major == 2
+
+    - name: Install required Python MySQL module (Python 3)
+      pip:
+        name: pymysql
+        state: present
+      when: ansible_python.version.major == 3
+
+    - name: Install required Python MySQL module (Python 2)
+      pip:
+        name: MySQL-python
+        state: present
+      when: ansible_python.version.major == 2
+
+    - name: Create the MySQL database
+      mysql_db:
+        name: "{{ mysql_database }}"
+        state: present
+
+    - name: Add the table to the MySQL database
+      mysql_db:
+        name: "{{ mysql_database }}"
+        state: table
+        encoding: utf8
+        collation: utf8_general_ci
+        query: |
+           `{{ mysql_table }}` (
+            `Firstname` VARCHAR(255),
+            `Lastname` VARCHAR(255),
+            `City` VARCHAR(255),
+            `State` VARCHAR(255),
+            `Team Name` VARCHAR(255)
+           ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+    - name: Insert data into the MySQL table
+      mysql_db:
+        name: "{{ mysql_database }}"
+        state: query
+        query: |
+          INSERT INTO `{{ mysql_database }}`.`{{ mysql_table }}` (`Firstname`, `Lastname`, `City`, `State`, `Team Name`)
+          VALUES
+            ('Qudratullo', 'Shamsudinov', 'Cumming', 'GA', 'Team 1'),
+            ('Angela', 'Kholmuradova', 'Philadelphia', 'PA', NULL),
+            ('Daniel', 'Nour', 'Leesburg', 'VA', NULL),
+            ('Gulnozahon', 'Jaloliddinova', 'Sherman Oaks', 'CA', NULL),
+            ('Ronald', 'Haley', NULL, 'VA', NULL),
+            ('Husan', 'Turgunov', 'Pittsburgh', 'PA', NULL),
+            ('SAYYORA', 'AKRAMOVA', 'CUMMING', 'GA', NULL),
+            ('Nafisa', 'Sanakulova', 'Pittsburgh', 'PA', 'Team 2'),
+            ('kamola', 'gofurova', 'Spring Valley', 'NY', NULL),
+            ('Miki', NULL, NULL, NULL, NULL),
+            ('Dinara', 'Saydova', 'Arlington', 'VA', NULL),
+            ('Kamola', 'Nishanova', 'FLUSHING', 'NY', NULL),
+            ('Francisco', 'Calvo Montero', 'Manassas', 'VA', NULL),
+            ('Mirzoanvar', 'Bahodirov', 'Bensalem', 'PA', NULL),
+            ('Fariza', 'Marufova', 'Philadelphia', 'PA', 'Team 3'),
+            ('Mokhira', 'Eshimova', 'NAPERVILLE', 'IL', NULL),
+            ('Abdulloh', 'Soliev', 'Brooklyn', 'NY', NULL),
+            ('Tural', 'Rizvanov', NULL, NULL, NULL),
+            ('Abdushukur', 'Kakhkhorov', 'Brooklyn', 'NY', NULL),
+            ('MAKSUDA', 'MAMARAIMOVA', 'Harrison', 'NJ', NULL),
+            ('Nilufar', 'Fazil', 'falls church', 'VA', NULL);
+
+      ignore_errors: yes  # This ignores errors for existing rows, can be run multiple times

@@ -1,0 +1,32 @@
+---
+- name: Initialize Docker Swarm as Manager
+  hosts: manager
+  become: yes
+  tasks:
+    - name: Docker Swarm Init
+      command: docker swarm init --advertise-addr {{ ansible_host }}
+      register: swarm_init_output
+      changed_when: false
+
+    - name: Save Docker Swarm init output to /clientshare/token.txt
+      copy:
+        content: "{{ swarm_init_output.stdout }}"
+        dest: /clientshare/token.txt
+
+- name: Join Worker Nodes to Docker Swarm
+  hosts: workers
+  become: yes
+  tasks:
+
+    - name: Read the contents of the file
+      command: cat /clientshare/token.txt
+      register: file_contents
+
+    - name: Filter lines containing the specified pattern
+      command: grep -E 'docker swarm join --token' 
+      args:
+        stdin: "{{ file_contents.stdout }}"
+      register: filtered_contents
+
+    - name: Use the filtered contents as input for a command
+      command: "{{ filtered_contents.stdout }}"

@@ -1,0 +1,17 @@
+---
+- name: Configure Docker Daemon
+  hosts: manager
+  become: yes
+  tasks:
+    - name: Create daemon.json file
+      blockinfile:
+        path: /etc/docker/daemon.json
+        block: |
+          {
+            "live-restore": false
+          }
+
+    - name: Restart Docker service
+      systemd:
+        name: docker
+        state: restarted

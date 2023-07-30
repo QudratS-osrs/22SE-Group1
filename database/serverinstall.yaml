@@ -1,0 +1,82 @@
+---
+- name: Install MariaDB and perform MySQL secure installation
+  hosts: database  # Replace with the target host where you want to install MariaDB
+  become: true
+
+  vars:
+
+    hosts_deny: [192.168.110.18]
+
+  tasks:
+    - name: Add MariaDB Yum Repository
+      copy:
+        content: |
+          [mariadb]
+          name=MariaDB
+          baseurl=http://mirror.mariadb.org/yum/11.1/centos7-amd64/
+          gpgkey=http://mirror.mariadb.org/RPM-GPG-KEY-MariaDB
+          gpgcheck=0
+        dest: /etc/yum.repos.d/MariaDB.repo
+
+
+    - name: Clean YUM cache
+      shell: yum clean all
+
+#    - name: Update YUM repository cache
+#      yum:
+#        name: '*'
+#        state: latest
+
+    - name: Install epel-release package
+      yum:
+        name: epel-release
+        state: present
+
+    - name: Install MariaDB Server and Client packages
+      yum:
+        name:
+          - MariaDB-server
+          - MariaDB-client
+        state: latest
+      when: inventory_hostname not in hosts_deny
+
+
+    - name: Centos8 Specific for installing mariadb
+      yum:
+        name:
+          - MariaDB-server
+          - MariaDB-devel
+        state: latest
+      when: inventory_hostname in hosts_deny
+
+    - name: Enable and start MariaDB service
+      systemd:
+        name: mariadb
+        enabled: yes
+        state: started
+
+    - name: Wait for MariaDB to start
+      wait_for:
+        port: 3306
+        delay: 5
+        timeout: 120
+
+#    - name: Install pexpect Python library
+#      yum:
+#        name: pexpect  # For Python 2
+#        state: present
+#      vars:
+#        ansible_python_interpreter: /usr/bin/python2  
+
+#    - name: Secure MySQL installation           #SKIPPING THIS STEP
+#      expect:
+#        command: mariadb-secure-installation
+#        responses:
+#          'Enter current password for root (enter for none): ': ""
+#          'Set root password? [Y/n]: ': "Y\n"
+#          'New password: ': "password"  # Replace with your desired root password
+#          'Re-enter new password: ': "password"  # Replace with your desired root password
+#          'Remove anonymous users? [Y/n]: ': "Y\n"
+#          'Disallow root login remotely? [Y/n]: ': "Y\n"
+#          'Remove test database and access to it? [Y/n]: ': "Y\n"
+#          'Reload privilege tables now? [Y/n]: ': "Y\n"
