@@ -1,7 +1,9 @@
 ---
-- name: Configure Docker Swarm
+- name: Configure Docker Swarm THIS DOES NOT WORK. SEE MAIN
   hosts: docker
   become: true
+
+  tasks:
 
     - name: Retrieve Swarm join token for workers
       shell: docker swarm join-token -q worker

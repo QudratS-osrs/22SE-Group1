@@ -1,0 +1,37 @@
+---
+- name: Update Nagios contacts.cfg
+  hosts: nagios
+  become: true
+  tasks:
+    - name: Restart HTTPD service
+      systemd:
+        name: httpd
+        state: restarted
+
+    - name: Enable HTTPD service at boot
+      systemd:
+        name: httpd
+        enabled: yes
+
+    - name: Enable nagios service at boot
+      systemd:
+        name: nagios
+        enabled: yes
+
+    - name: Add HTTP service to firewall
+      command: firewall-cmd --permanent --add-service=http
+      changed_when: false
+      register: http_service_result
+
+    - name: Reload firewall rules
+      command: firewall-cmd --reload
+      when: http_service_result is changed
+
+    - name: Add HTTPS service to firewall
+      command: firewall-cmd --permanent --add-service=https
+      changed_when: false
+      register: https_service_result
+
+    - name: Reload firewall rules
+      command: firewall-cmd --reload
+      when: https_service_result is changed

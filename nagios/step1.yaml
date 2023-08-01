@@ -14,17 +14,17 @@
     - name: Run ./configure inside Nagios folder
       command: ./configure
       args:
-        chdir: /tmp/nagios*
+        chdir: /tmp/nagioscore-nagios-4.4.5
 
     - name: Run make all inside Nagios folder
       command: make all
       args:
-        chdir: /tmp/nagios* 
+        chdir: /tmp/nagioscore-nagios-4.4.5 
 
     - name: Install Nagios Core groups and users
       command: make install-groups-users
       args:
-        chdir: /tmp/nagios*  
+        chdir: /tmp/nagioscore-nagios-4.4.5  
 
     - name: Add 'apache' user to 'nagios' group
       command: usermod -aG nagios apache
@@ -32,27 +32,27 @@
     - name: Install Nagios Core
       command: make install
       args:
-        chdir: /tmp/nagios*  # Change the working directory to /tmp/nagios before running the command
+        chdir: /tmp/nagioscore-nagios-4.4.5  # Change the working directory to /tmp/nagios before running the command
 
     - name: Install Nagios Core Daemon Init
       command: make install-daemoninit
       args:
-        chdir: /tmp/nagios*  # Change the working directory to /tmp/nagios before running the command
+        chdir: /tmp/nagioscore-nagios-4.4.5  # Change the working directory to /tmp/nagios before running the command
 
     - name: Install Nagios Core Command Mode
       command: make install-commandmode
       args:
-        chdir: /tmp/nagios*  # Change the working directory to /tmp/nagios before running the command
+        chdir: /tmp/nagioscore-nagios-4.4.5  # Change the working directory to /tmp/nagios before running the command
 
     - name: Install Nagios Core Config Files
       command: make install-config
       args:
-        chdir: /tmp/nagios*  # Change the working directory to /tmp/nagios before running the command
+        chdir: /tmp/nagioscore-nagios-4.4.5  # Change the working directory to /tmp/nagios before running the command
 
     - name: Install Nagios Core Web Configuration
       command: make install-webconf
       args:
-        chdir: /tmp/nagios*
+        chdir: /tmp/nagioscore-nagios-4.4.5
 
     - name: Download Nagios Plugins tarball
       command: wget -O /root/nagios-plugins-2.3.2.tar.gz http://nagios-plugins.org/download/nagios-plugins-2.3.2.tar.gz
@@ -63,35 +63,88 @@
     - name: Run ./configure inside Nagios Plugins folder
       command: ./configure
       args:
-        chdir: /root/nagios-plugins-* 
+        chdir: /root/nagios-plugins-2.3.2 
 
     - name: Run make inside Nagios Plugins folder
       command: make
       args:
-        chdir: /root/nagios-plugins-*  # Change the working directory to /root/nagios-plugins-* before running the command
+        chdir: /root/nagios-plugins-2.3.2  # Change the working directory to /root/nagios-plugins-* before running the command
 
     - name: Run make install inside Nagios Plugins folder
       command: make install
       args:
-        chdir: /root/nagios-plugins-* 
+        chdir: /root/nagios-plugins-2.3.2 
 
-    - name: Uncomment line 51 in nagios.cfg
-      lineinfile:
-        path: /usr/local/nagios/etc/nagios.cfg
-        regexp: '^#(.*line51.*)$'
-        line: '\1'  # Removes the '#' symbol from the matched line
+    - name: Insert cfg_dir 
+      blockinfile:
+        path: /usr/local/nagios/etc/nagios.cfg  
+        block: |
+          cfg_dir=/usr/local/nagios/etc/servers
+        marker: "# {mark} AUTO-GENERATED: Inserted by Ansible"
 
-    - name: Make the servers folder
-      command: mkdir /usr/local/nagios/etc/servers
+    - name: Check if the folder exists
+      stat:
+        path: /usr/local/nagios/etc/servers
+      register: folder_exists
+
+    - name: Create the folder if it doesn't exist
+      file:
+        path: /usr/local/nagios/etc/servers
+        state: directory
+        mode: '0755'  
+      when: not folder_exists.stat.exists
 
     - name: Restart Nagios Service
       service:
         name: nagios
         state: restarted       
 
+    - name: Run htpasswd command for nagiosadmin
+      expect:
+        command: htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+        responses:
+          "New password:": "password"
+          "Re-type new password:": "password"
 
+    - name: Run htpasswd command for abdul
+      expect:
+        command: htpasswd /usr/local/nagios/etc/htpasswd.users abdul
+        responses:
+          "New password:": "password"
+          "Re-type new password:": "password"
 
+    - name: Restart HTTPD service
+      systemd:
+        name: httpd
+        state: restarted
 
+    - name: Enable HTTPD service at boot
+      systemd:
+        name: httpd
+        enabled: yes
+
+    - name: Enable nagios service at boot
+      systemd:
+        name: nagios
+        enabled: yes
+
+    - name: Add HTTP service to firewall
+      command: firewall-cmd --permanent --add-service=http
+      changed_when: false
+      register: http_service_result
+
+    - name: Reload firewall rules
+      command: firewall-cmd --reload
+      when: http_service_result is changed
+
+    - name: Add HTTPS service to firewall
+      command: firewall-cmd --permanent --add-service=https
+      changed_when: false
+      register: https_service_result
+
+    - name: Reload firewall rules
+      command: firewall-cmd --reload
+      when: https_service_result is changed
 
     - name: Install required packages
       yum:
