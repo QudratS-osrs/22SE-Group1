@@ -1,0 +1,34 @@
+---
+- name: Create index file on web1 server
+  hosts: web12
+  become: yes
+
+
+  tasks:
+    - name: Create index.html file if not exist
+      file:
+        path: /var/www/html/index.html
+        state: touch
+
+
+    - name: Put content to /var/www/html/
+      copy:
+        content: |
+          <h1>Hello from Disney! 🌸</h1>
+          <h3>Web server 112 / CentOS 8</h3>
+          <img src="https://wallscloud.net/img/resize/1600/1200/MM/2016-09-25-disney-bambi-movie-kJJ.jpg">
+        dest: /var/www/html/index.html
+
+
+    - name: Make sure file is existing
+      file:
+        path: /var/www/html/index.html
+        state: file
+
+
+    - name: Set ownership and permissions for index.html file 
+      file:
+        path : /var/www/html/index.html 
+        owner : apache 
+        group : apache 
+        mode : '0644'

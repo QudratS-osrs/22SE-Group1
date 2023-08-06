@@ -1,0 +1,225 @@
+---
+- name: Load Balancer configuration
+  hosts: load
+  become: yes
+
+
+  tasks:
+    - name: Add lines to the /etc/hosts file
+      blockinfile:
+        path: /etc/hosts
+        block: |
+          192.168.0.101 prdx-webserver101.ziyotek.local web1
+          192.168.0.102 prdx-webserver102.ziyotek.local web2
+          192.168.0.103 prdx-webserver103.ziyotek.local web3
+          192.168.0.101 prdx-webserver111.ziyotek.local web11
+          192.168.0.112 prdx-webserver112.ziyotek.local web12
+          192.168.0.113 prdx-webserver113.ziyotek.local web13
+     #   192.168.110.19 prdx-webserver101.ziyotek1.local web1
+     #   192.168.110.21 prdx-webserver102.ziyotek1.local web2
+     #   192.168.110.23 prdx-webserver103.ziyotek1.local web3
+     #   192.168.110.20 prdx-webserver111.ziyotek1.local web11   #CentOS 8
+     #   192.168.110.22 prdx-webserver112.ziyotek1.local web12   #CentOS 8
+     #   192.168.110.24 prdx-webserver113.ziyotek1.local web13   #CentOS 8
+
+
+    - name: Install HAProxy and HTTPD services
+      yum:
+        name:
+          - epel-release
+          - haproxy
+          - httpd
+        state: present
+
+
+
+    - name: Backup original configuration file /etc/haproxy/haproxy.cfg
+      command: cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.orig
+
+    - name: Create /etc/haproxy/haproxy.cfg
+      copy:
+        content: |  
+          global
+              log         127.0.0.1 local2
+
+              chroot      /var/lib/haproxy
+              pidfile     /var/run/haproxy.pid
+              maxconn     4000
+              user        haproxy
+              group       haproxy
+              daemon
+    
+              # turn on stats unix socket
+              stats socket /var/lib/haproxy/stats
+
+          #---------------------------------------------------------------------
+          # common defaults that all the 'listen' and 'backend' sections will
+          # use if not designated in their block
+          #---------------------------------------------------------------------
+          defaults
+              mode                    http
+              log                     global
+              option                  httplog
+              option                  dontlognull
+              option http-server-close
+              option forwardfor       except 127.0.0.0/8
+              option                  redispatch
+              retries                 3
+              timeout http-request    10s
+              timeout queue           1m
+              timeout connect         10s
+              timeout client          1m
+              timeout server          1m
+              timeout http-keep-alive 10s
+              timeout check           10s
+              maxconn                 3000
+
+          #---------------------------------------------------------------------
+          # HAProxy Monitoring Config
+          #---------------------------------------------------------------------
+          listen haproxy3-monitoring
+              bind *:9090
+              mode http
+              option forwardfor
+              option httpclose
+              stats enable
+              stats show-legends
+              stats refresh 5s
+              stats uri /stats
+              stats realm Haproxy\ Statistics
+              stats auth student:password
+              stats admin if TRUE
+              default_backend web-main
+
+          #---------------------------------------------------------------------
+          # main frontend which proxys to the backends
+          #---------------------------------------------------------------------
+          frontend  main
+              bind *:80
+              acl url_static       path_beg       -i /static /images /javascript /stylesheets
+              acl url_static       path_end       -i .jpg .gif .png .css .js
+              option http-server-close
+              option forwardfor
+              default_backend web-main
+          #   use_backend static          if url_static
+          #   default_backend             app
+
+          #---------------------------------------------------------------------
+          # static backend for serving up images, stylesheets and such
+          #---------------------------------------------------------------------
+          backend static
+          balance     roundrobin
+          server      static 127.0.0.1:4331 check
+
+          #---------------------------------------------------------------------
+          # round robin balancing between the various backends
+          #---------------------------------------------------------------------
+          backend web-main
+              balance     roundrobin
+              server  web1 192.168.0.101:80 check
+              server  web2 192.168.0.102:80 check
+              server  web3 192.168.0.103:80 check
+              server  web11 192.168.0.111:80 check
+              server  web12 192.168.0.112:80 check
+              server  web13 192.168.0.113:80 check
+
+              #server  web1  192.168.110.19:80   check
+              #server  web11  192.168.110.20:80  check
+              #server  web2  192.168.110.21:80   check
+              #server  web12  192.168.110.22:80  check
+              #server  web3  192.168.110.23:80   check
+              #server  web13  192.168.110.24:80  check
+        dest: /etc/haproxy/haproxy.cfg
+
+
+    - name: update httpd.conf
+      lineinfile:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: '^Listen'
+        line: 'Listen 8080'    
+
+
+
+    - name: Uncomment $ModLoad imudp line      # for CentOs 7
+      lineinfile:
+        path: /etc/rsyslog.conf
+        regexp: '^#\$ModLoad imudp'
+        line: '$ModLoad imudp'
+        state: present
+      when: inventory_hostname != 'lb11'
+  
+    - name: Uncomment $UDPServerRun 514 line      # for CentOs 7
+      lineinfile:
+        path: /etc/rsyslog.conf
+        regexp:  '^#\$UDPServerRun 514'
+        line: '$UDPServerRun 514' 
+        state: present 
+      when: inventory_hostname != 'lb11'
+
+    - name: Uncomment module(load="imudp")        # for CenoOS 8
+      lineinfile:
+        path: /etc/rsyslog.conf
+        regexp: '^#module\(load="imudp"\)'
+        line: 'module(load="imudp")'
+        state: present
+      when: inventory_hostname != 'lb1'
+
+    - name: Uncomment input(type="imudp" port="514")   # for CentOs 8
+      lineinfile:
+        path: /etc/rsyslog.conf
+        regexp: '^#input\(type="imudp" port="514"\)'
+        line: 'input(type="imudp" port="514")'
+        state: present
+      when: inventory_hostname != 'lb1' 
+        
+
+  
+    - name: Restart rsyslog
+      service:
+        name: rsyslog
+        state: restarted      
+
+
+
+    - name: create new haproxy configuration file for rsyslog
+      copy:
+        content: | 
+          local2.=info     /var/log/haproxy-access.log    #For Access Log
+          local2.notice    /var/log/haproxy-info.log      #For Service Info - Backend, loadbalancer
+        dest: /etc/rsyslog.d/haproxy.conf       
+
+    - name: Ensure HAProxy rsyslog config permissions
+      file:
+        path: /etc/rsyslog.d/haproxy.conf
+        mode: '0644'
+
+
+    - name: stop and disable Firewalld
+      service:
+        name: firewalld
+        state: stopped
+        enabled: no                 
+
+
+    - name: Start and enable the HAProxy
+      service:
+        name: haproxy
+        state: started
+        enabled: true
+
+    - name: Set SELinux state to disabled
+      selinux:
+        policy: targeted
+        state: disabled
+
+    - name: Update SELinux configuration file
+      lineinfile:
+        path: /etc/selinux/config
+        regexp: '^SELINUX='
+        line: 'SELINUX=disabled'
+
+    - name: Start and enable HTTPD service
+      service:
+        name: httpd
+        state: started
+        enabled: yes        

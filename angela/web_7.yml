@@ -1,0 +1,36 @@
+---
+- name: Install and start web server httpd
+  hosts: web_CentOS7
+  become: true
+
+  tasks:
+    - name: Install Apache http  package
+      yum:
+        name:
+          - httpd
+        state: present
+
+    - name: Start and enable Apache service
+      service:
+        name: httpd
+        state: started
+        enabled: yes 
+
+
+    - name: Set SELinux state to disabled
+      selinux:
+        policy: targeted
+        state: disabled
+
+    - name: Update SELinux configuration file
+      lineinfile:
+        path: /etc/selinux/config
+        regexp: '^SELINUX='
+        line: 'SELINUX=disabled'
+
+
+    - name: stop and disable firewalld
+      service:
+        name: firewalld
+        state: stopped
+        enabled: no

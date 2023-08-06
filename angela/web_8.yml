@@ -1,0 +1,35 @@
+---
+- name: Install and start Apache server on CentOS 8
+  hosts: web_CentOS8
+  become: true
+
+  tasks:
+    - name: Install  http  package
+      yum:
+        name: httpd
+        state: present
+
+    - name: Start and enable Apache service
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+
+
+    - name: Set SELinux state to disabled
+      selinux:
+        policy: targeted
+        state: disabled
+
+    - name: Update SELinux configuration file
+      lineinfile:
+        path: /etc/selinux/config
+        regexp: '^SELINUX='
+        line: 'SELINUX=disabled'
+
+
+    - name: stop and disable firewalld
+      systemd:
+        name: firewalld
+        state: stopped
+        enabled: no 
