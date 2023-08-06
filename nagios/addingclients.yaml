@@ -1,0 +1,23 @@
+---
+- name: Copy Nagios Client Files
+  hosts: nagios
+  become: true
+
+  tasks:
+
+    - name: Install rsync
+      yum:
+        name: rsync
+        state: present
+
+    - name: Synchronize files to remote server
+      synchronize: 
+         src: /ansible/nagios/clients/
+         dest: /usr/local/nagios/etc/servers/ 
+      delegate_to: localhost
+
+    - name: Restart Nagios service
+      service:
+        name: nagios
+        state: restarted
+  

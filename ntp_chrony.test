@@ -1,0 +1,157 @@
+192.168.110.25 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   8   377     3  -1442us[-1442us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3  10   377   732  +1396us[+1517us] +/-   52ms
+192.168.110.12 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    35  -1535us[-1535us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3  10   377   124  +1198us[+1188us] +/-   53ms
+192.168.110.10 | CHANGED | rc=0 >>
+210 Number of sources = 4
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ 72-46-61-205.lnk.ne.stat>     2  10   377   20m  -2062us[-1722us] +/-   67ms
+^+ 129.146.193.200               2  10   325  1013   +805us[+1145us] +/-   75ms
+^* ntp.mtl2.ca.leaseweb.net      2  10   377   481   +718us[+1060us] +/-  644ms
+^+ pacific.latt.net              3  10    77   593  -1454us[-1113us] +/-   90ms
+192.168.110.15 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    51  -1516us[-1516us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3   9   377    87  +1222us[+1343us] +/-   53ms
+192.168.110.26 | CHANGED | rc=0 >>
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    45  -1451us[-1451us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3   7   377    76  +1291us[+1236us] +/-   53ms
+192.168.110.11 | CHANGED | rc=0 >>
+210 Number of sources = 4
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ pacific.latt.net              3  10   157   695  -6124us[-6124us] +/-   90ms
+^* ntp.xtom.com                  2  10   340  113m   -784us[ -765us] +/-   61ms
+^- 168.61.215.74                 3  10   377  1107  -1193us[-1193us] +/-   54ms
+^- ntp06.cymru.com               2  10   307   30m  -6369us[-6369us] +/-  136ms
+192.168.110.34 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    13  -1535us[-1535us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3   8   377    87  +1302us[+1327us] +/-   53ms
+192.168.110.35 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    23  -1447us[-1447us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3   8   377    90  +1311us[+1228us] +/-   53ms
+192.168.110.17 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    44  -1342us[-1363us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3   9   377    27  +1312us[+1291us] +/-   53ms
+192.168.110.18 | CHANGED | rc=0 >>
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^* prdx-ntp101.ziyotek1.loc>     3   6   377    18    -33us[ -114us] +/-   56ms
+^- prdx-ntp102.ziyotek1.loc>     3  10   377   153  +2677us[+2643us] +/-   53ms
+192.168.110.27 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    24  -1646us[-1646us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3  10   377   235  +1162us[+1183us] +/-   52ms
+192.168.110.19 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    24  -1216us[-1216us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3   9   377   482  +1512us[+1514us] +/-   52ms
+192.168.110.21 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    21  -1477us[-1477us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3   8   377   107  +1294us[+1288us] +/-   53ms
+192.168.110.20 | CHANGED | rc=0 >>
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    26  -1491us[-1491us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3   9   377   312  +1263us[+1430us] +/-   53ms
+192.168.110.22 | CHANGED | rc=0 >>
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    42  -1369us[-1369us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3  10   377   392  +1338us[+1418us] +/-   52ms
+192.168.110.23 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    35  -1505us[-1505us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3  10   377   758  +1223us[+1414us] +/-   52ms
+192.168.110.30 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    19  -1396us[-1396us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3  10   377   616  +1364us[+1425us] +/-   52ms
+192.168.110.24 | CHANGED | rc=0 >>
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    52  -1397us[-1426us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3   7   377    21  +1297us[+1266us] +/-   53ms
+192.168.110.16 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377     6  -1503us[-1503us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3   9   377    80  +1198us[+1382us] +/-   53ms
+192.168.110.31 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377     4  -1347us[-1347us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3   9   377   278  +1264us[+1373us] +/-   53ms
+192.168.110.28 | CHANGED | rc=0 >>
+210 Number of sources = 4
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^- linode1.ernest-doss.org       3  10   377   404  -6624us[-6624us] +/-   92ms
+^* 99-119-214-210.lightspee>     2  10   377   707   -394us[+3899us] +/-   16ms
+^? haka.ruselabs.com             0  10     0     -     +0ns[   +0ns] +/-    0ns
+^- 168.61.215.74                 3  10   261   627  -4487us[-4487us] +/-   51ms
+192.168.110.33 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    65  -1322us[-1322us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3   9   377   446  +1417us[+1412us] +/-   52ms
+192.168.110.32 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    27  -1459us[-1459us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3  10   377   386  +1286us[+1411us] +/-   52ms
+192.168.110.29 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    64  -1604us[-1604us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3  10   377   152  +1089us[+1179us] +/-   53ms
+192.168.110.13 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    12  -1508us[-1508us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3   9   377   149  +1195us[+1410us] +/-   53ms
+192.168.110.14 | CHANGED | rc=0 >>
+210 Number of sources = 2
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^+ prdx-ntp101.ziyotek1.loc>     3   6   377    56  -1492us[-1375us] +/-   56ms
+^* prdx-ntp102.ziyotek1.loc>     3   9   377     6  +1247us[+1364us] +/-   53ms

@@ -1,6 +1,6 @@
 ---
 - name: Edit ziyotek.rlz
-  hosts: nssecondary
+  hosts: nsprimary 
   become: true
   tasks:
     - name: Ensure ziyotek.rlz exists
@@ -11,7 +11,7 @@
     - name: Edit ziyotek.rlz file
       blockinfile:
         path: /var/named/ziyotek.rlz
-        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        marker: ""
         content: |
           $TTL   1D
           @       IN      SOA     prdx-nsprimary101.ziyotek1.local. root.prdx-nsprimary101.ziyotek1.local. (
@@ -22,9 +22,9 @@
                                   3H )            ; minimum
 
           ; name servers NS records
-          IN      NS      prdx-nsprimary101.ziyotek1.local.
-          IN      NS      prdx-nsworker101.ziyotek1.local.
-          IN      NS      prdx-nsworker102.ziyotek1.local.          
+                      IN      NS      prdx-nsprimary101.ziyotek1.local.
+                      IN      NS      prdx-nsworker101.ziyotek1.local.
+                      IN      NS      prdx-nsworker102.ziyotek1.local.          
 
           ; name servers PTR records
           12          IN      PTR     prdx-nsprimary101.ziyotek1.local.

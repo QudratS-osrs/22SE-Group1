@@ -10,6 +10,10 @@
           - yum-utils
           - device-mapper-persistent-data
           - lvm2
+          - httpd 
+          - php
+          - php-mysql
+          - mysql
         state: present
 
     - name: Configure docker-ce repo

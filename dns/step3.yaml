@@ -1,6 +1,6 @@
 ---
 - name: Edit ziyotek.flz
-  hosts: nssecondary
+  hosts: nsprimary 
   become: true
   tasks:
     - name: Ensure ziyotek.flz exists

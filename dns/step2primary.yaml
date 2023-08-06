@@ -1,6 +1,6 @@
 ---
 - name: Configure named.conf
-  hosts: primary
+  hosts: nsprimary
   become: true
   tasks:
     - name: Ensure named directory exists
@@ -18,40 +18,58 @@
         path: /var/named/ziyotek.rlz
         state: touch
 
-    - name: Copy named.conf file
-      copy:
-        content: |
-          //
-          // named.conf
-          //
-
-          // Provided by Red Hat bind package to configure the ISC BIND named(8) DNS
-          // server as a caching only nameserver (as a localhost DNS resolver only).
-          // See /usr/share/doc/bind*/sample/ for example named configuration files.
-
+    - name: Edit named.conf
+      become: yes
+      lineinfile:
+        path: /etc/named.conf
+        #regexp: '^#BEGIN_NAMED_CONF_CONFIG'
+        #insertafter: '^#BEGIN_NAMED_CONF_CONFIG'
+        line: |
           options {
-            listen-on port 53 { 127.0.0.1; 192.168.110.12; }; ## primary DNS IP ##
-            directory "/var/named";
-            allow-query { localhost; 192.168.110.0/23; };     ## IP RANGE or use the word any; ##
-            allow-transfer { localhost; 192.168.110.13; };    ## secondary DNS IP ##
-            also-notify { 192.168.110.13; };                  ## secondary IP
-          .
-          .
+              listen-on port 53 { 127.0.0.1; 192.168.110.12; };
+              listen-on-v6 port 53 { ::1; };
+              directory     "/var/named";
+              dump-file     "/var/named/data/cache_dump.db";
+              statistics-file "/var/named/data/named_stats.txt";
+              memstatistics-file "/var/named/data/named_mem_stats.txt";
+              recursing-file  "/var/named/data/named.recursing";
+              secroots-file   "/var/named/data/named.secroots";
+              allow-query     { localhost; 192.168.110.0/23; };
+              allow-recursion { localhost; 192.168.110.12; };
+              allow-transfer  {localhost; 192.168.110.13; 192.168.110.14; };
+              also-notify { 192.168.110.13; 192.168.110.14; };
+              recursion yes;
+              dnssec-enable yes;
+              dnssec-validation yes;
+              bindkeys-file "/etc/named.root.key";
+              managed-keys-directory "/var/named/dynamic";
+              pid-file "/run/named/named.pid";
+              session-keyfile "/run/named/session.key";
+          };
+
+          logging {
+              channel default_debug {
+                  file "data/named.run";
+                  severity dynamic;
+              };
+          };
 
           # FORWARD LOOKUP ZONE
           zone "ziyotek1.local" IN {
-            type primary;
-            file "ziyotek.flz";                     ## We do not have this file has yet.  We need to create it. ##
-            allow-update { none; };
+              type master;
+              file "ziyotek.flz";
+              allow-update { none; };
           };
 
           # REVERSE LOOKUP ZONE
           zone "110.168.192.in-addr.arpa" IN {
-            type primary;
-            file "ziyotek.rlz";                     ## We do not have this file has yet. We need to create it. ##
-            allow-update { none; };
+               type master;
+               file "ziyotek.rlz";
+               allow-update { none; };
           };
-        dest: /etc/named.conf
+
+        #backrefs: yes
+
     - name: Copy named.localhost to ziyotek.flz
       command: cp -p /var/named/named.localhost /var/named/ziyotek.flz
       ignore_errors: yes

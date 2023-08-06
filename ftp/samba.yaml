@@ -1,0 +1,53 @@
+---
+- name: Install Samba Packages
+  hosts: ftp
+  become: true  
+
+  tasks:
+    - name: Install Samba packages
+      yum:
+        name:
+          - samba
+          - samba-common
+          - samba-client
+        state: present
+
+    - name: Create Samba directories #RUN THIS PLAY ONLY ONE TIME!!
+      file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - /sambashare/secure
+        - /sambashare/open
+
+    - name: Set permissions for Samba directories 
+      file:
+        path: "{{ item.path }}"
+        mode: "{{ item.mode }}"
+      loop:
+        - { path: /sambashare/secure, mode: '0770' }
+        - { path: /sambashare/open, mode: '0775' }
+
+    - name: Disable SELinux enforcement
+      command: setenforce 0
+      ignore_errors: yes
+
+    - name: Add Samba service to firewall rules
+      firewalld:
+        service: samba
+        permanent: yes
+        state: enabled
+
+    - name: Reload firewall rules
+      systemd:
+        name: firewalld
+        state: restarted
+
+    - name: Start and enable SMB and NMB services
+      systemd:
+        name: "{{ item }}"
+        enabled: yes
+        state: started
+      loop:
+        - smb
+        - nmb     
